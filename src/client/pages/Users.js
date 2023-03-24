@@ -12,21 +12,28 @@ import UserCard from '../components/UserCard';
 const Users = () => {
   const { user } = useUser();
   const db = firebase.firestore();
-  const [adminMode, setAdminMode] = useState(false)
+  const [adminMode, setAdminMode] = useState(false);
 
-  const [userDocs, loading, error] = useCollectionData(db.collection(USERS), {
+  const [userInfo, loading, error] = useCollectionData(db.collection(USERS), {
     snapshotListenOptions: { includeMetadataChanges: true },
   });
 
+  const [userDocs, setUserDocs] = useState();
+
+  //upon user or userDocs change, move the current user to the first array position, and update whether they have admin status
   useEffect(() => {
+    if (user && userInfo) {
+      const currUserIndex = userInfo.findIndex((u) => u.uid == user.uid)
+      const currUser = userInfo[currUserIndex] || null
+      setAdminMode(currUser?.isAdmin)
 
-    if (user && userDocs) {
-      setAdminMode(userDocs.find(u => u.uid == user.uid)?.isAdmin)
+      const userData = [...userInfo]
+      userData.splice(currUserIndex, 1)
+      userData.splice(0, 0, currUser)
+      setUserDocs(userData)
     }
+  }, [userInfo, user]);
 
-  },[userDocs, user])
-
- console.log(adminMode)
   return (
     <>
       <Helmet>
