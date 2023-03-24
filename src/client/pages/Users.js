@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { USERS } from '../../firebase/index';
@@ -12,11 +12,21 @@ import UserCard from '../components/UserCard';
 const Users = () => {
   const { user } = useUser();
   const db = firebase.firestore();
+  const [adminMode, setAdminMode] = useState(false)
 
   const [userDocs, loading, error] = useCollectionData(db.collection(USERS), {
     snapshotListenOptions: { includeMetadataChanges: true },
   });
 
+  useEffect(() => {
+
+    if (user && userDocs) {
+      setAdminMode(userDocs.find(u => u.uid == user.uid)?.isAdmin)
+    }
+
+  },[userDocs, user])
+
+ console.log(adminMode)
   return (
     <>
       <Helmet>
@@ -49,6 +59,7 @@ const Users = () => {
                   key={`user-${userDoc.uid}`}
                   userDoc={userDoc}
                   isCurrentUser={user.uid === userDoc.uid}
+                  adminMode={adminMode}
                 />
               ))}
             </ul>

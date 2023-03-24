@@ -39,7 +39,8 @@ const Profile = () => {
     <main>
       <Card>
         <h1 className="text-2xl leading-6 font-medium text-gray-900">
-          {`Edit ${userDoc?.uid === user.uid ? 'your' : 'user'} profile`}
+          {userDoc?.uid === user?.uid ? "Edit your profile" :
+          adminMode ? 'Edit user profile' : "View profile"}
         </h1>
       </Card>
 
