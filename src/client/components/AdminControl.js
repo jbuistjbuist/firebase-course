@@ -1,16 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { updateUser } from '../../firebase';
 
 import Card from './Card';
 
 export default function AdminControl({ adminMode, uid, isAdmin }) {
+  const [showModal, setShowModal] = useState(false);
+
   let adminBtnBase =
-    'ml-3 inline-flex justify-end py-2 px-3 border border-transparent shadow-sm text-sm font-medium rounded-md text-white focus:outline-none focus:ring-2 focus:ring-offset-2';
+    'inline-flex justify-end py-2 px-3 border border-transparent shadow-sm text-sm font-medium rounded-md text-white focus:outline-none focus:ring-2 focus:ring-offset-2';
   let adminBtnFormat = !isAdmin
     ? ' bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500'
     : ' bg-red-600 hover:bg-red-700 focus:ring-red-500';
   const adminBtnClasses = adminBtnBase + adminBtnFormat;
+
+  const handleConfirm = () => {
+    setShowModal(false);
+    updateUser(uid, { isAdmin: !isAdmin });
+  };
 
   return (
     <Card>
@@ -29,13 +36,44 @@ export default function AdminControl({ adminMode, uid, isAdmin }) {
       <div className="pt-2 flex justify-end">
         <button
           type="button"
-          onClick={() => updateUser(uid, { isAdmin: !isAdmin })}
+          onClick={() => setShowModal((prev) => !prev)}
           className={adminBtnClasses}
         >
           {!isAdmin ? 'Grant' : 'Revoke'}
         </button>
       </div>
 
+      {showModal && (
+        <div
+          className="flex-col flex justify-center bg-opacity-40 bg-gray-600 items-center overflow-x-hidden overflow-y-auto fixed inset-0 outline-none focus:outline-none z-10"
+          onClick={() => setShowModal(false)}
+        >
+          <div
+            className="relative w-2/3 h-1/3 sm:w-1/3 z-30 flex flex-col justify-center items-center bg-white rounded-lg mx-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-2xl leading-6 font-medium text-gray-900 pt-4">
+              Are you sure?
+            </h2>
+            <div className="w-2/3 flex flex-row flex-wrap justify-center items-center gap-4 pt-8 justify-self-center">
+              <button
+                type="button"
+                className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-500 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-600"
+                onClick={() => setShowModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className={adminBtnClasses}
+                onClick={handleConfirm}
+              >
+                {!isAdmin ? 'Grant' : 'Revoke'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </Card>
   );
 }

@@ -25,12 +25,12 @@ const Layout = ({ children }) => {
   ];
 
   return (
-    <div className="bg-gray-900 min-h-screen pt-14 pb-4">
+    <div className="bg-gray-900 min-h-screen pt-14 pb-4 w-full">
       <Popover as="header" className="relative">
         <Disclosure as="nav" className="bg-transparent">
           {({ open }) => (
             <>
-              <div className="max-w-7xl px-2 sm:px-6 lg:px-8 fixed top-0 bg-gray-900 w-full z-10">
+              <div className="px-2 sm:px-6 lg:px-8 fixed top-0 bg-gray-900 w-full z-20">
                 <div className="relative flex items-center justify-end h-16">
                   <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
                     {/* Mobile menu button */}
