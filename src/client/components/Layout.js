@@ -25,7 +25,7 @@ const Layout = ({ children }) => {
   ];
 
   return (
-    <div className="bg-gray-900 min-h-screen pt-14 pb-4 w-full">
+    <div className="bg-gray-900 min-h-screen pt-14 pb-6 w-full">
       <Popover as="header" className="relative">
         <Disclosure as="nav" className="bg-transparent">
           {({ open }) => (

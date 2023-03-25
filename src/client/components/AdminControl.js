@@ -5,8 +5,10 @@ import { updateUser } from '../../firebase';
 import Card from './Card';
 
 export default function AdminControl({ adminMode, uid, isAdmin }) {
+  //use state to show and hide confirmation modal
   const [showModal, setShowModal] = useState(false);
 
+  //conditionally format button based on whether it is to grant or revoke admin access
   let adminBtnBase =
     'inline-flex justify-end py-2 px-3 border border-transparent shadow-sm text-sm font-medium rounded-md text-white focus:outline-none focus:ring-2 focus:ring-offset-2';
   let adminBtnFormat = !isAdmin
@@ -25,7 +27,7 @@ export default function AdminControl({ adminMode, uid, isAdmin }) {
         Admin Status
       </h3>
       <p className="mt-1 text-sm text-gray-500">
-        {!isAdmin ? 'No admin access' : 'Admin access'}
+        {!isAdmin ? 'Not an admin' : 'Admin access'}
       </p>
       {!adminMode && (
         <p className="mt-1 text-xs text-gray-400">
@@ -45,7 +47,7 @@ export default function AdminControl({ adminMode, uid, isAdmin }) {
 
       {showModal && (
         <div
-          className="flex-col flex justify-center bg-opacity-40 bg-gray-600 items-center overflow-x-hidden overflow-y-auto fixed inset-0 outline-none focus:outline-none z-10"
+          className="flex-col flex justify-center bg-opacity-40 bg-gray-600 items-center overflow-x-hidden overflow-y-auto fixed inset-0 outline-none focus:outline-none z-10 animate-appear-mid"
           onClick={() => setShowModal(false)}
         >
           <div

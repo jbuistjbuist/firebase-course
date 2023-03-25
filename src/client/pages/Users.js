@@ -13,14 +13,14 @@ const Users = () => {
   const { user } = useUser();
   const db = firebase.firestore();
   const [adminMode, setAdminMode] = useState(false);
+  const [userDocs, setUserDocs] = useState();
 
   const [userInfo, loading, error] = useCollectionData(db.collection(USERS), {
     snapshotListenOptions: { includeMetadataChanges: true },
   });
 
-  const [userDocs, setUserDocs] = useState();
-
   //upon user or userDocs change, move the current user to the first array position, and update whether they have admin status
+  //use a state for the sorted array to make sure it's re-rendered when user or userData changes
   useEffect(() => {
     if (user && userInfo) {
       const currUserIndex = userInfo.findIndex((u) => u.uid == user.uid)

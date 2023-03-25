@@ -61,7 +61,14 @@ const Profile = () => {
           </>
         )}
       </LoadingError>
-      {userDoc && <AdminControl uid={userDoc.uid} isAdmin={userDoc.isAdmin} adminMode={adminMode}/>}
+      {/* section to toggle admin status */}
+      {userDoc && (
+        <AdminControl
+          uid={userDoc.uid}
+          isAdmin={userDoc.isAdmin}
+          adminMode={adminMode}
+        />
+      )}
     </main>
   );
 };
