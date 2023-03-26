@@ -32,12 +32,16 @@ const ProfileForm = ({ userDoc, isCurrentUser, adminMode }) => {
       <div className="space-y-8">
         <div>
           <h3 className="text-lg leading-6 font-medium text-gray-900">
-            Profile
+            {(!(isCurrentUser || adminMode) &&
+              `${userDoc.displayName}'s Profile`) ||
+              'Profile'}
           </h3>
-          <p className="mt-1 text-sm text-gray-500">
-            This information will be displayed publicly so be careful what you
-            share.
-          </p>
+          {(isCurrentUser || adminMode) && (
+            <p className="mt-1 text-sm text-gray-500">
+              This information will be displayed publicly so be careful what you
+              share.
+            </p>
+          )}
         </div>
 
         <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
@@ -90,12 +94,12 @@ const ProfileForm = ({ userDoc, isCurrentUser, adminMode }) => {
         </p>
       )}
 
-      <div className="pt-5 flex justify-end">
+      <div className="pt-2 flex justify-end">
         <button
           type="submit"
           className="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
-          Save
+          {!(isCurrentUser || adminMode) ? '⚠️ Save' : 'Save'}
         </button>
       </div>
     </form>

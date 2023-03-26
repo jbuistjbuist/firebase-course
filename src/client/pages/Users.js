@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { USERS } from '../../firebase/index';
@@ -12,10 +12,27 @@ import UserCard from '../components/UserCard';
 const Users = () => {
   const { user } = useUser();
   const db = firebase.firestore();
+  const [adminMode, setAdminMode] = useState(false);
+  const [userDocs, setUserDocs] = useState();
 
-  const [userDocs, loading, error] = useCollectionData(db.collection(USERS), {
+  const [userInfo, loading, error] = useCollectionData(db.collection(USERS), {
     snapshotListenOptions: { includeMetadataChanges: true },
   });
+
+  //upon user or userDocs change, move the current user to the first array position, and update whether they have admin status
+  //use a state for the sorted array to make sure it's re-rendered when user or userData changes
+  useEffect(() => {
+    if (user && userInfo) {
+      const currUserIndex = userInfo.findIndex((u) => u.uid == user.uid)
+      const currUser = userInfo[currUserIndex] || null
+      setAdminMode(currUser?.isAdmin)
+
+      const userData = [...userInfo]
+      userData.splice(currUserIndex, 1)
+      userData.splice(0, 0, currUser)
+      setUserDocs(userData)
+    }
+  }, [userInfo, user]);
 
   return (
     <>
@@ -49,6 +66,7 @@ const Users = () => {
                   key={`user-${userDoc.uid}`}
                   userDoc={userDoc}
                   isCurrentUser={user.uid === userDoc.uid}
+                  adminMode={adminMode}
                 />
               ))}
             </ul>

@@ -15,8 +15,26 @@ service cloud.firestore {
       allow update: if (request.auth != null &&
       resource.data.authorId == request.auth.uid);
     }
-
-    // Add new rules here
    
+    // Allow owners of todos to delete, update, view their todos
+    // Allow users to create todos associated with their own account
+    match /todos/{todoId} {
+      allow read, delete, update: if (request.auth != null && resource.data.uid == request.auth.uid);
+      allow create: if (request.auth != null && request.resource.data.uid == request.auth.uid);
+    }
+   
+   //Allow anyone to read someone else's profile
+   //Allow users to update and create their own profiles, and admins to update anyones profiles
+   //Allow only admins to modify the isAdmin property of a profile
+    match /users/{user_id} {
+      allow read: if (request.auth != null);
+      allow write: if (request.auth != null && ((request.resource.data.isAdmin == resource.data.isAdmin &&
+      resource.data.uid == request.auth.uid) || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin));
+
+      //alternative with firebase functions 
+      // allow write: if (request.auth != null && (resource.data.uid == request.auth.uid && !request.resource.data.diff(resource.data).affectedKeys()
+      //   .hasAny(['isAdmin'])) || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin)
+    
+    }
   }
 }
