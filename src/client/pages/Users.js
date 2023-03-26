@@ -4,6 +4,7 @@ import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { USERS } from '../../firebase/index';
 import firebase from '../../firebase/clientApp';
 
+import useForm from '../hooks/useForm';
 import LoadingError from '../components/LoadingError';
 import { useUser } from '../components/user-context';
 import Card from '../components/Card';
@@ -18,6 +19,17 @@ const Users = () => {
   const [userInfo, loading, error] = useCollectionData(db.collection(USERS), {
     snapshotListenOptions: { includeMetadataChanges: true },
   });
+
+  const {formData, handleFormSubmit, handleChange } = useForm()
+
+  // useEffect(() => {
+  //   if (!formData.search) {
+  //     return
+  //   }
+
+  //   setUserDocs(db.collection(USERS).where()
+
+  // }, [formData])
 
   //upon user or userDocs change, move the current user to the first array position, and update whether they have admin status
   //use a state for the sorted array to make sure it's re-rendered when user or userData changes
@@ -50,6 +62,14 @@ const Users = () => {
           <h1 className="text-2xl leading-6 font-medium text-gray-900">
             Meet other users
           </h1>
+        </Card>
+
+        <Card>
+          <form onSubmit={handleFormSubmit}>
+            <label for="search" className='text-2xl leading-6 font-medium text-gray-900'>Search Users</label>
+            <input type='text' id="search" name="search" value={formData.search || ""} onChange={handleChange} placeholder="Search by username"/>
+            <input type='checkbox' id="isAdmin" name="isAdmin" value={formData.isAdmin || ""} onChange={handleChange} />
+          </form>
         </Card>
 
         <LoadingError data={userDocs} loading={loading} error={error}>
