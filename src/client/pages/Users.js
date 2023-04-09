@@ -14,13 +14,20 @@ const Users = () => {
   const { user } = useUser();
   const db = firebase.firestore();
   const [adminMode, setAdminMode] = useState(false);
-  const [userDocs, setUserDocs] = useState();
 
-  const [userInfo, loading, error] = useCollectionData(db.collection(USERS), {
+  const [currentUser, loading1, error1] = useCollectionData(db.collection(USERS).where('uid', '==', user?.uid), {
+    snapshotListenOptions: { includeMetadataChanges: true },
+  })
+
+  const [userList, loading2, error2] = useCollectionData(db.collection(USERS).where('uid', '!=', user?.uid), {
     snapshotListenOptions: { includeMetadataChanges: true },
   });
 
   const {formData, handleFormSubmit, handleChange } = useForm()
+
+  useEffect(() => {
+    setAdminMode(currentUser?.isAdmin)
+  }, [currentUser])
 
   // useEffect(() => {
   //   if (!formData.search) {
@@ -33,18 +40,7 @@ const Users = () => {
 
   //upon user or userDocs change, move the current user to the first array position, and update whether they have admin status
   //use a state for the sorted array to make sure it's re-rendered when user or userData changes
-  useEffect(() => {
-    if (user && userInfo) {
-      const currUserIndex = userInfo.findIndex((u) => u.uid == user.uid)
-      const currUser = userInfo[currUserIndex] || null
-      setAdminMode(currUser?.isAdmin)
 
-      const userData = [...userInfo]
-      userData.splice(currUserIndex, 1)
-      userData.splice(0, 0, currUser)
-      setUserDocs(userData)
-    }
-  }, [userInfo, user]);
 
   return (
     <>
@@ -66,14 +62,15 @@ const Users = () => {
 
         <Card>
           <form onSubmit={handleFormSubmit}>
-            <label for="search" className='text-2xl leading-6 font-medium text-gray-900'>Search Users</label>
+            <label htmlFor="search" className='text-2xl leading-6 font-medium text-gray-900'>Search Users</label>
             <input type='text' id="search" name="search" value={formData.search || ""} onChange={handleChange} placeholder="Search by username"/>
+            <label htmlFor="isAdmin">Only Search Admins?</label>
             <input type='checkbox' id="isAdmin" name="isAdmin" value={formData.isAdmin || ""} onChange={handleChange} />
           </form>
         </Card>
 
-        <LoadingError data={userDocs} loading={loading} error={error}>
-          {!userDocs?.length ? (
+        <LoadingError data={userList} loading={loading1 || loading2} error={error1 || error2}>
+          {!userList?.length ? (
             <Card>
               <p className="mt-2 max-w-xl text-sm text-gray-700">
                 No one here yet 👀
@@ -81,7 +78,14 @@ const Users = () => {
             </Card>
           ) : (
             <ul className="space-y-4 lg:items-start pb-12">
-              {userDocs.map((userDoc) => (
+              {currentUser.length &&
+                <UserCard 
+                  key={`user-${currentUser[0].uid}`}
+                  userDoc={currentUser[0]}
+                  isCurrentUser={true}
+                  adminMode={adminMode}
+                />}
+              {userList.map((userDoc) => (
                 <UserCard
                   key={`user-${userDoc.uid}`}
                   userDoc={userDoc}
