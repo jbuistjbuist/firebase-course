@@ -18,6 +18,8 @@ const Layout = ({ children }) => {
 
   if (user?.loading) return null;
 
+
+
   const navigation = [
     { name: 'Home', href: '/', exact: true },
     { name: 'My List', href: '/my-list', exact: false },
