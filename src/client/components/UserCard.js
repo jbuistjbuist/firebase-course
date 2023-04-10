@@ -47,7 +47,7 @@ const UserCard = ({ userDoc, isCurrentUser, adminMode }) => {
             <button
               type="button"
               className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
-              onClick={() => history.push(`/users/${userDoc.uid}`)}
+              onClick={() => history.push(`/users/${userDoc.uid || userDoc.id}`)}
             >
               {(adminMode || isCurrentUser) ? 'Edit' : 'View'}
             </button>

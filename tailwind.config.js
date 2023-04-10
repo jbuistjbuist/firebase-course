@@ -20,6 +20,11 @@ module.exports = {
       animation: {
         'appear-mid': 'appear 0.2s linear 1',
       },
+
+      boxShadow: {
+        'innerstrong': 'inset 0 3px 6px 0 rgb(0 0 0 / 0.4)'
+      }
+
     },
   },
   variants: {

@@ -1,6 +1,7 @@
 import toast from 'react-hot-toast';
 import firebase from './clientApp';
 import { cleanData, TODOS, USERS } from './utility';
+import typesenseClient from '../typesense/client';
 
 async function update(path, data) {
   const db = firebase.firestore();
@@ -45,9 +46,13 @@ export async function updateTodo(id, data) {
 export async function updateUser(uid, data) {
   const path = `${USERS}/${uid}`;
 
+
   update(path, data)
     .then((userId) => {
       console.log(`User updated at ${path}`);
+      typesenseClient.collections('users').documents(uid).update(data)
+        .then((res) => console.log("typesense updated")).catch((err) => console.log(err))
+
       toast.success('Profile updated!');
       return userId;
     })

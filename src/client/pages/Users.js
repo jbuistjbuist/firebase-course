@@ -4,8 +4,10 @@ import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { USERS } from '../../firebase/index';
 import firebase from '../../firebase/clientApp';
 
+import typesenseClient from '../../typesense/client';
 import useForm from '../hooks/useForm';
 import LoadingError from '../components/LoadingError';
+import searchUsers from '../../typesense/search';
 import { useUser } from '../components/user-context';
 import Card from '../components/Card';
 import UserCard from '../components/UserCard';
@@ -14,7 +16,7 @@ const Users = () => {
   const { user } = useUser();
   const db = firebase.firestore();
   const [adminMode, setAdminMode] = useState(false);
-  const [searchedUsers, setSearchedUsers] = useState(null);
+  const [searchedUsers, setSearchedUsers] = useState([]);
   const [currentUser, setCurrentUser] = useState();
 
   const [currentUserData, loading1, error1] = useCollectionData(
@@ -41,6 +43,8 @@ const Users = () => {
       const profile = {
         uid: user.uid,
         isAdmin: false,
+        displayName: '',
+        about: '',
       };
 
       db.collection(USERS)
@@ -49,6 +53,17 @@ const Users = () => {
         .then((res) => {
           console.log(res);
           setCurrentUser(profile);
+          typesenseClient
+            .collections('users')
+            .documents()
+            .create({
+              id: profile.uid,
+              isAdmin: profile.isAdmin,
+              displayName: profile.displayName,
+              about: profile.about,
+            })
+            .then((res) => console.log(res))
+            .catch((err) => console.log(err));
         })
         .catch((err) => console.log(err));
     } else {
@@ -58,16 +73,23 @@ const Users = () => {
     setAdminMode(currentUser?.isAdmin);
   }, [currentUserData]);
 
-  // useEffect(() => {
-  //   if (!formData.search) {
-  //     setSearchedUsers(null);
-  //     return;
-  //   }
+  useEffect(() => {
+    if (!formData.search) {
+      setSearchedUsers(null);
+      return;
+    }
 
-  //   const [searchResult, loading3, error2] = useCollectionData(
-  //     db.collection(USERS).where('about', '')
-  //   );
-  // }, [formData]);
+    searchUsers(formData.search)
+      .then((results) => {
+        let result = [];
+        results.hits.forEach((e) => {
+          result.push(e.document);
+        });
+        setSearchedUsers(result);
+        console.log(result);
+      })
+      .catch((error) => console.log(error));
+  }, [formData]);
 
   //upon user or userDocs change, move the current user to the first array position, and update whether they have admin status
   //use a state for the sorted array to make sure it's re-rendered when user or userData changes
@@ -90,45 +112,32 @@ const Users = () => {
           </h1>
         </Card>
 
-        <Card>
-          <form onSubmit={handleFormSubmit}>
-            <label
-              htmlFor="search"
-              className="text-2xl leading-6 font-medium text-gray-900"
-            >
-              Search Users
-            </label>
+  
+          <form onSubmit={handleFormSubmit} className='flex justify-center align-middle'>
             <input
+              className='rounded-lg w-11/12 sm:w-6/12 mx-auto my-0 z-10 px-4 py-1 sm:p-2 shadow-innerstrong'
               type="text"
               id="search"
               name="search"
+              aria-label="search-users"
               value={formData.search || ''}
               onChange={handleChange}
               placeholder="Search by username"
             />
-            <label htmlFor="isAdmin">Only Search Admins?</label>
-            <input
-              type="checkbox"
-              id="isAdmin"
-              name="isAdmin"
-              value={formData.isAdmin || ''}
-              onChange={handleChange}
-            />
           </form>
-        </Card>
 
         <LoadingError
           data={userList}
           loading={loading1 || loading2}
           error={error1 || error2}
         >
-          {!userList?.length && !searchedUsers ? (
+          {!userList?.length ? (
             <Card>
               <p className="mt-2 max-w-xl text-sm text-gray-700">
                 No one here yet 👀
               </p>
             </Card>
-          ) : (
+          ) : !searchedUsers?.length ? (
             <ul className="space-y-4 lg:items-start pb-12">
               {currentUser && (
                 <UserCard
@@ -146,6 +155,18 @@ const Users = () => {
                   adminMode={adminMode}
                 />
               ))}
+            </ul>
+          ) : (
+            <ul className="space-y-4 lg:items-start pb-12">
+
+              {searchedUsers.map((searchDoc) => (
+                <UserCard
+                  key={`user-${searchDoc.id}`}
+                  userDoc={searchDoc}
+                  isCurrentUser={user.uid === searchDoc.id}
+                  adminMode={adminMode}
+                />))}
+
             </ul>
           )}
         </LoadingError>
