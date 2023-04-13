@@ -6,7 +6,7 @@ let typesenseClient = new Typesense.Client({
     'port': '8108',
     'protocol': 'http'
   }],
-  'apiKey': 'xyz',
+  'apiKey': process.env.TYPESENSE_API_KEY,
   'connectionTimeoutSeconds': 2
 })
 

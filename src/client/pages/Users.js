@@ -86,7 +86,6 @@ const Users = () => {
           result.push(e.document);
         });
         setSearchedUsers(result);
-        console.log(result);
       })
       .catch((error) => console.log(error));
   }, [formData]);
