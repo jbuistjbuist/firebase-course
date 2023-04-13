@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { useDocumentData } from 'react-firebase-hooks/firestore';
-import { USERS, updateUser } from '../../firebase/index';
+import { USERS } from '../../firebase/index';
 import firebase from '../../firebase/clientApp';
 
 import { useUser } from '../components/user-context';
 import LoadingError from '../components/LoadingError';
 import Card from '../components/Card';
 import ProfileForm from '../components/ProfileForm';
+import AdminControl from '../components/AdminControl';
 
 const Profile = () => {
   const { user } = useUser();
@@ -39,7 +40,11 @@ const Profile = () => {
     <main>
       <Card>
         <h1 className="text-2xl leading-6 font-medium text-gray-900">
-          {`Edit ${userDoc?.uid === user.uid ? 'your' : 'user'} profile`}
+          {userDoc?.uid === user?.uid
+            ? 'Edit your profile'
+            : adminMode
+            ? 'Edit user profile'
+            : 'View profile'}
         </h1>
       </Card>
 
@@ -56,6 +61,14 @@ const Profile = () => {
           </>
         )}
       </LoadingError>
+      {/* section to toggle admin status */}
+      {userDoc && (
+        <AdminControl
+          uid={userDoc.uid}
+          isAdmin={userDoc.isAdmin}
+          adminMode={adminMode}
+        />
+      )}
     </main>
   );
 };
